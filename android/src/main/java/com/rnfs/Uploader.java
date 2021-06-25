@@ -175,7 +175,14 @@ public class Uploader extends AsyncTask<UploadParams, int[], UploadResult> {
             request.flush();
             request.close();
 
-            responseStream = new BufferedInputStream(connection.getInputStream());
+            // responseStream = new BufferedInputStream(connection.getInputStream());
+            statusCode = connection.getResponseCode();
+
+            if (statusCode >= 400) {
+                responseStream = new BufferedInputStream(connection.getErrorStream());
+            } else {
+                responseStream = new BufferedInputStream(connection.getInputStream());
+            }
             responseStreamReader = new BufferedReader(new InputStreamReader(responseStream));
             WritableMap responseHeaders = Arguments.createMap();
             Map<String, List<String>> map = connection.getHeaderFields();
@@ -191,7 +198,7 @@ public class Uploader extends AsyncTask<UploadParams, int[], UploadResult> {
             }
 
             String response = stringBuilder.toString();
-            statusCode = connection.getResponseCode();
+            // statusCode = connection.getResponseCode();
             res.headers = responseHeaders;
             res.body = response;
             res.statusCode = statusCode;
